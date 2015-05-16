@@ -1,0 +1,48 @@
+From f4949482ce4d8553f42840b759e942546bd3c461 Mon Sep 17 00:00:00 2001
+From: Armin Kuster <akuster808@gmail.com>
+Date: Fri, 15 May 2015 08:51:58 -0700
+Subject: [PATCH] jz4740: fix irq issue
+
+this fixes:
+
+/arch/mips/jz4740/irq.h:22:13: note: previous declaration of 'jz4740_irq_resume' was here
+ extern void jz4740_irq_resume(struct irq_data *data);
+
+Signed-off-by: Armin Kuster <akuster808@gmail.com>
+---
+ arch/mips/jz4740/gpio.c              | 2 +-
+ arch/mips/jz4740/{irq.h => jz_irq.h} | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+ rename arch/mips/jz4740/{irq.h => jz_irq.h} (95%)
+
+diff --git a/arch/mips/jz4740/gpio.c b/arch/mips/jz4740/gpio.c
+index 00b798d..ffe5229 100644
+--- a/arch/mips/jz4740/gpio.c
++++ b/arch/mips/jz4740/gpio.c
+@@ -28,7 +28,7 @@
+ 
+ #include <asm/mach-jz4740/base.h>
+ 
+-#include "irq.h"
++#include "jz_irq.h"
+ 
+ #define JZ4740_GPIO_BASE_A (32*0)
+ #define JZ4740_GPIO_BASE_B (32*1)
+diff --git a/arch/mips/jz4740/irq.h b/arch/mips/jz4740/jz_irq.h
+similarity index 95%
+rename from arch/mips/jz4740/irq.h
+rename to arch/mips/jz4740/jz_irq.h
+index 0f48720..794e825 100644
+--- a/arch/mips/jz4740/irq.h
++++ b/arch/mips/jz4740/jz_irq.h
+@@ -16,6 +16,7 @@
+ #define __MIPS_JZ4740_IRQ_H__
+ 
+ #include <linux/irq.h>
++#include "asm/mach-jz4740/irq.h"
+ 
+ extern void jz4740_irq_suspend(struct irq_data *data);
+ extern void jz4740_irq_resume(struct irq_data *data);
+-- 
+2.3.5
+
