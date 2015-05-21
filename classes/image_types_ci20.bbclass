@@ -1,5 +1,7 @@
 inherit image_types
 
+IMAGE_BOOTLOADER ?= "u-boot-ci20"
+
 # Handle u-boot suffixes
 UBOOT_SUFFIX ?= "img"
 UBOOT_SUFFIX_SDCARD ?= "${UBOOT_SUFFIX}"
@@ -24,8 +26,7 @@ IMAGE_DEPENDS_sdcard = "parted-native:do_populate_sysroot \
                         dosfstools-native:do_populate_sysroot \
                         mtools-native:do_populate_sysroot \
                         virtual/kernel:do_deploy \ 
-                        bootlets:do_install \
-                        "
+                        ${@d.getVar('IMAGE_BOOTLOADER', True) and d.getVar('IMAGE_BOOTLOADER', True) + ':do_deploy' or ''}"
 
 SDCARD = "${DEPLOY_DIR_IMAGE}/${IMAGE_NAME}.rootfs.sdcard"
 SDCARD_GENERATION_COMMAND_ci20= "generate_ci20_sdcard"
@@ -38,10 +39,17 @@ generate_ci20_sdcard () {
     # Create rootfs partition to the end of disk
     parted -s ${SDCARD} -- unit KiB mkpart primary ext2 ${IMAGE_ROOTFS_ALIGNMENT} -1s
     parted ${SDCARD} print
-
-    dd if=${DEPLOY_DIR_IMAGE}/u-boot-spl.bin of=${SDCARD} obs=512 seek=${UBOOT_SPL_POS}
-    dd if=${DEPLOY_DIR_IMAGE}/u-boot.${UBOOT_SUFFIX} of=${SDCARD} obs=1k seek=${UBOOT_BIN_POS}
-    dd if=/dev/zero of=${SDCARD} seek=526  count=32 bs=1k
+    case "${IMAGE_BOOTLOADER}" in
+        u-boot-ci20)
+            dd if=${DEPLOY_DIR_IMAGE}/u-boot-spl.bin of=${SDCARD} obs=512 seek=${UBOOT_SPL_POS}
+            dd if=${DEPLOY_DIR_IMAGE}/u-boot.${UBOOT_SUFFIX} of=${SDCARD} obs=1k seek=${UBOOT_BIN_POS}
+            dd if=/dev/zero of=${SDCARD} seek=526  count=32 bs=1k
+        ;;
+        *)
+            bberror "Unknown IMAGE_BOOTLOADER value"
+            exit 1
+        ;;
+    esac
 
     # Burn Partitions
     dd if=${SDIMG_ROOTFS} of=${SDCARD} conv=notrunc seek=1 bs=$(expr ${IMAGE_ROOTFS_ALIGNMENT} \* 1024) && sync && sync
