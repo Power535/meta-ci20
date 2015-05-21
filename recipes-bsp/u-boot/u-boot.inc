@@ -7,43 +7,35 @@
 
 require recipes-bsp/u-boot/u-boot.inc
 
-#PROVIDES = "virtual/bootloader"
-#PROVIDES += "u-boot"
+PROVIDES = "virtual/bootloader"
+PROVIDES += "u-boot"
 
-#DEPENDS = "mtd-utils dtc-native"
+DEPENDS = "mtd-utils dtc-native"
 
-#PACKAGE_ARCH = "${MACHINE_ARCH}"
-#PARALLEL_MAKE=""
+PACKAGE_ARCH = "${MACHINE_ARCH}"
+PARALLEL_MAKE=""
 
 #EXTRA_OEMAKE = "CROSS_COMPILE=${TARGET_PREFIX}"
 
-#UBOOT_MACHINE ?= "${MACHINE}_config"
-#UBOOT_BINARY ?= "u-boot.bin"
-#UBOOT_IMAGE ?= "u-boot-${MACHINE}-${PV}-${PR}.bin"
-#UBOOT_SYMLINK ?= "u-boot-${MACHINE}.bin"
-#UBOOT_MAKE_TARGET ?= "all"
-#UBOOT_SPL ?= "${MACHINE}-spl.bin"
-#UBOOT_SPL_IMAGE ?= "u-boot-${MACHINE}-${PV}-${PR}-spl.bin"
+UBOOT_MACHINE ?= "${MACHINE}_config"
+UBOOT_BINARY ?= "u-boot.bin"
+UBOOT_IMAGE ?= "u-boot-${MACHINE}-${PV}-${PR}.bin"
+UBOOT_SYMLINK ?= "u-boot-${MACHINE}.bin"
+UBOOT_MAKE_TARGET ?= "all"
+UBOOT_SPL ?= "u-boot-spl.bin"
+UBOOT_SPL_IMAGE ?= "u-boot-${MACHINE}-${PV}-${PR}-spl.bin"
 
 #EXTRA_OEMAKE += 'HOSTCC="${BUILD_CC} ${BUILD_CPPFLAGS}" \
 #    HOSTLDFLAGS="${BUILD_LDFLAGS}" \
 #    HOSTSTRIP=true'
 
-#do_configure () {
-#	unset LDFLAGS
-#
-#if [ "${@base_contains('DISTRO_FEATURES', 'ld-is-gold', 'ld-is-gold', '', d)}" = "ld-is-gold" ] ; then
-#sed -i 's/$(CROSS_COMPILE)ld$/$(CROSS_COMPILE)ld.bfd/g' config.mk
-#	fi
-#	oe_runmake  ${UBOOT_MACHINE}
-#}
+do_configure () {
+    oe_runmake  ${UBOOT_MACHINE}
+}
 
-#do_compile () {
-#	#unset LDFLAGS
-#	#unset CFLAGS
-#unset CPPFLAGS
-#	oe_runmake CC=${CC} ${UBOOT_MAKE_TARGET}
-#}
+do_compile () {
+    oe_runmake ${UBOOT_MAKE_TARGET}
+}
 
 do_install () {
 	install -d ${D}/boot
